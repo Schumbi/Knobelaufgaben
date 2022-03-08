@@ -1,0 +1,135 @@
+﻿@page "/zahlenraten"
+
+<PageTitle>Zahlenraten 1 bis 100</PageTitle>
+<div class="container p-5 my-5 border">
+    <h1>Zahlenraten 1 bis 100</h1>
+
+    <div class="row" hidden="@controller.HideNotStarted">
+        <div class="col-8">
+            <div class="d-flex justify-content-center">
+                <div class="card p-5">
+                    <div class="card-body">
+                        <div class="card card-title border-0">
+                            <h3>
+                                Die Regeln!
+                            </h3>
+                        </div>
+                        <div class="card-text">
+                            <p>
+                                Bei diesem Spiel sollst Du ein Zahl zwischen 0 und 100 erraten.
+                            </p>
+                            <p>
+                                Beim Start des Spiels, hat sich der Computer 🤖 eine Zahl ausgedacht.
+                                Diese Zahl sollst Du nun erraten, in dem Du Dir auch eine Zahl ausdenkst
+                                und die in das gelbe Feld unten eingibst.
+                                <br />
+                                Gib Deine Zahl also in das gelbe Feld unten ein und drücke dann den blauen Knopf "Raten!".
+                                Der Computer 🤖 guckt dann, ob Deine Zahl die Gleiche ist wie seine.
+                                Hast Du seine Zahl schon erraten, ist das Spiel vorbei.
+                                <br />
+                                Wenn die beiden Zahlen nicht übereinstimmen, sagt der Computer 🤖 Dir, ob Seine Zahl kleiner oder
+                                größer als Deine Zahl ist. Du kannst Dir dann eine Neue ausdenken und die wieder in das Feld eingeben.
+                                <br />
+                                Das kannst Du so lange wiederholen, bis Du die Zahl vom Computer 🤖 erraten hast.
+                                <br />
+                                Wenn Du die Zahl erraten hast, zeigt der Computer 🤖 Dir an, wie oft Du raten musstest.
+                                <br />
+                                Versuche die Zahl vom Computer 🤖 möglichst schnell und mit ganz wenig Versuchen zu erraten!
+                            </p>
+                            Drücke <emph>Start</emph> um unzufangen! &nbsp;
+
+                            <button class="btn btn-outline-success"
+                                    @onclick="Start">
+                                Start
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4 display-1" p-5>🤖</div>
+    </div>
+
+    <div class="container"
+         hidden="@(controller.HideNotStarted == false)">
+
+        <div class="row">
+            <div class="border border-1 p-2 col-8"
+                hidden="@(controller.HideEqual==false)">
+                <div>Gib Dein Zahl ein. Dann drücke <span class="btn-primary">prüfen</span>.</div>
+                <div class="input-group">
+                    <label class="input-group-text mx-1" for="guess">Deine Zahl?</label>
+                    <input type="number"
+                           class="bg-warning mx-1"
+                           id="guess"
+                           title="Bitte gib Deine Zahl ein."
+                           min="0"
+                           max="100"
+                           @oninvalid="CheckNumber"
+                           @onfocusout="CheckNumber"
+                           @bind-value="model.InpNumber"
+                           @oninput="@(() => showErg = false)" />
+                    <button class="btn btn-primary mx-2"
+                            @onclick="Evaluate">
+                        Prüfen!
+                    </button>
+                </div>
+            </div>
+            <div class="container col-8"
+                hidden="@(controller.HideEqual)">
+                <p class="h2 pt-3">👏 Nach schon @model.GuessCount Mal hast Du es erraten! 😸 Super!</p>
+                <button class="btn btn-primary mx-2"
+                        @onclick="@Reset">
+                    Nochmal!
+                </button>
+            </div>
+            <div class="col-4 h1"><span hidden="@(controller.HideEqual==false)">🤖</span>&nbsp;</div>
+        </div>
+        <div class="row pt-3">
+            <div hidden=@(showErg == false) class="h3 col-8">
+                <span hidden="@controller.HideBigger">Deine Zahl ist zu klein. 🙃 (Gib mehr ein 👆)</span>
+                <span hidden="@controller.HideSmaller">Deine Zahl ist zu groß. 🙈 (Gib weniger ein 👇)</span>
+            </div>
+            <div hidden=@showErg>&nbsp;</div>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    static GuessApp app = new();
+    Sources.Model.Model model = app.Model;
+    Sources.Controller.Contoller controller = app.Contoller;
+
+    static bool showErg = false;
+
+    private void CheckNumber()
+    {
+        if (model.InpNumber < 0) model.InpNumber = 0;
+        if (model.InpNumber > 100) model.InpNumber = 100;
+    }
+
+    private void Evaluate()
+    {
+        controller.Evaluate();
+        showErg = true;
+    }
+
+    private void Start()
+    {
+        app.Start();
+    }
+
+    private async Task Reset()
+    {
+        await Task.Run(() =>
+        {
+            app.Reset();
+            showErg = false;
+        });
+
+    }
+
+
+}
